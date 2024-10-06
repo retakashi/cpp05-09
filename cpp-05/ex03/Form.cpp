@@ -1,0 +1,105 @@
+#include "Form.hpp"
+
+Form::Form(std::string name, int grade_sign, int grade_exec) : name(name),
+	grade_sign(grade_sign), grade_exec(grade_exec),is_signed(false)
+{
+	if (this->grade_sign < 1)
+		throw Form::GradeTooHighException();
+	if (this->grade_sign > 150)
+		throw Form::GradeTooLowException();
+	std::cout << "Form Default constructor called" << std::endl;
+}
+
+Form::~Form()
+{
+	std::cout << "Form Destructor called" << std::endl;
+}
+
+Form &Form::operator=(const Form &other)
+{
+	std::cout << "Form Copy assignment operator called" << std::endl;
+	if (this != &other)
+	{
+		this->is_signed = other.is_signed;
+		std::string &tmp = const_cast<std::string&> (this->name);
+		tmp = other.name;
+		int &s_tmp = const_cast<int&>(this->grade_sign);
+		s_tmp = other.grade_sign;
+		int &e_tmp = const_cast<int&>(this->grade_exec);
+		e_tmp = other.grade_exec;
+	}
+	return (*this);
+}
+
+Form::Form(const Form &other) : name(other.name), grade_sign(other.grade_sign),
+	grade_exec(other.grade_exec),is_signed(other.is_signed)
+{
+	std::cout << "Form Copy constructor called" << std::endl;
+}
+
+const char *Form::GradeTooHighException::what() const throw()
+{
+	return ("Grade is too hight");
+}
+
+const char *Form::GradeTooLowException::what() const throw()
+{
+	return ("Grade is too low");
+}
+
+const char *Form::NotSigned::what() const throw()
+{
+	return ("This form is not signed");
+}
+
+const char *Form::FailedToOpenFile::what() const throw()
+{
+	return ("Failed to open out file");
+}
+
+const std::string &Form::getName() const
+{
+	return (this->name);
+}
+
+int Form::getGradeSign() const
+{
+	return (this->grade_sign);
+}
+
+int Form::getGradeExec() const
+{
+	return (this->grade_exec);
+}
+
+bool Form::getIsSigned() const
+{
+	return (this->is_signed);
+}
+
+void Form::beSigned(Bureaucrat &bureaucrat)
+{
+	if (bureaucrat.getGrade() > this->getGradeSign())
+		throw Form::GradeTooLowException();
+	this->is_signed = true;
+	std::cout << this->name << " was signed by " << bureaucrat.getName() << std::endl;
+}
+
+void Form::execute(Bureaucrat const &executor) const
+{
+	if (this->is_signed == false)
+		throw Form::NotSigned();
+	if (executor.getGrade() > this->grade_exec)
+		throw Form::GradeTooLowException();
+	std::cout << "AForm's execute function" << std::endl;
+}
+
+std::ostream &operator<<(std::ostream &os, const Form &obj)
+{
+	os << "Form's name: " << obj.getName() << ", grade_sign: " << obj.getGradeSign() << ", grade_exec: " << obj.getGradeExec() << std::flush;
+	if (obj.getIsSigned() == false)
+		os << ", is_signed: No" << std::endl;
+	else
+		os << ", is_signed: Yes" << std::endl;
+	return (os);
+}
